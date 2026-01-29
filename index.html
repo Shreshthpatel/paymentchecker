@@ -1,1 +1,168 @@
-hosting soon...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>INTERDISCIPLINARY PROJECT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#f4f6f8;
+      margin:0;
+      padding:0;
+    }
+    header{
+      background:#1f4d3a;
+      color:#fff;
+      padding:16px;
+      text-align:center;
+      font-size:20px;
+      font-weight:bold;
+      letter-spacing:1px;
+    }
+    .container{
+      max-width:700px;
+      margin:30px auto;
+      background:#fff;
+      padding:20px;
+      border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    }
+    input{
+      width:100%;
+      padding:12px;
+      font-size:16px;
+      border:1px solid #ccc;
+      border-radius:6px;
+      margin-bottom:20px;
+    }
+    .card{
+      border:1px solid #ddd;
+      border-radius:6px;
+      padding:15px;
+      margin-top:10px;
+    }
+    .row{margin:6px 0;}
+    .label{font-weight:bold;color:#333;}
+    .paid{color:green;font-weight:bold;}
+    .notpaid{color:red;font-weight:bold;}
+    button{
+      margin-top:15px;
+      padding:12px;
+      width:100%;
+      background:#1f4d3a;
+      color:white;
+      border:none;
+      border-radius:6px;
+      font-size:16px;
+      cursor:pointer;
+    }
+    button:hover{opacity:0.9;}
+    .qr{
+      text-align:center;
+      margin-top:15px;
+      display:none;
+    }
+    .upi-link{
+      display:block;
+      margin-top:10px;
+      color:#1f4d3a;
+      text-decoration:none;
+      font-weight:bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>INTERDISCIPLINARY PROJECT</header>
+
+<div class="container">
+  <input type="number" id="roll" placeholder="Enter Roll Number" />
+  <input type="text" id="search" placeholder="Or enter your name" />
+  <button onclick="searchMember()">Check</button>
+  <div id="result"></div>
+</div>
+
+<script>
+const data = [
+  {roll:39,name:"Shourya Jain",task:"Food & Cusine of MP",status:"Completed",start:"28 Dec 2025",end:"28 Dec",paid:false},
+  {roll:40,name:"Shreshth Patel",task:"Tourist Places of MP & Bihar",status:"Completed",start:"28 Dec 2025",end:"28 Dec",paid:true},
+  {roll:41,name:"Shubh Rajak",task:"Food & Cusine of Bihar",status:"Completed",start:"28 Dec 2025",end:"11 January",paid:false},
+  {roll:42,name:"Tanish Sawlani",task:"Dress of MP",status:"No response",start:"28 Dec 2025",end:"—",paid:false},
+  {roll:43,name:"Uzer Ali",task:"Dress of Bihar",status:"Completed",start:"28 Dec 2025",end:"5 January",paid:false},
+  {roll:44,name:"Veer Shrivastava",task:"Famous Festival of MP",status:"No response",start:"28 Dec 2025",end:"—",paid:false},
+  {roll:45,name:"Yashveer Bawa",task:"Famous Festival of Bihar",status:"Completed",start:"28 Dec 2025",end:"28 December",paid:true},
+  {roll:7,name:"Achintya",task:"Historical Monuments of MP",status:"Completed",start:"28 Dec 2025",end:"5 January",paid:true},
+  {roll:8,name:"Aadarsh",task:"Historical Monuments of Bihar",status:"Completed",start:"28 Dec 2025",end:"28 December",paid:false}
+];
+
+function searchMember(){
+  const rollVal = document.getElementById('roll').value.trim();
+  const nameVal = document.getElementById('search').value.trim().toLowerCase();
+  const res = document.getElementById('result');
+  res.innerHTML = "";
+
+  let user = null;
+
+  // 1️⃣ Roll number has priority
+  if(rollVal !== ""){
+    user = data.find(d => String(d.roll) === rollVal);
+    if(!user){
+      res.innerHTML = '<p style="color:red;font-weight:bold;">No roll number found. Now try searching by name.</p>';
+      return;
+    }
+  }
+  // 2️⃣ Name search only if roll is empty
+  else if(nameVal !== ""){
+    user = data.find(d => d.name.toLowerCase().includes(nameVal));
+    if(!user){
+      res.innerHTML = '<p style="color:red;font-weight:bold;">No record found with this name.</p>';
+      return;
+    }
+  }
+  else{
+    res.innerHTML = '<p style="color:red;font-weight:bold;">Please enter Roll No first. If not available, search by name.</p>';
+    return;
+  }
+
+  res.innerHTML = `
+    <div class="card">
+      <div class="row"><span class="label">Roll No:</span> ${user.roll}</div>
+      <div class="row"><span class="label">Name:</span> ${user.name}</div>
+      <div class="row"><span class="label">Task:</span> ${user.task}</div>
+      <div class="row"><span class="label">Status:</span> ${user.status}</div>
+      <div class="row"><span class="label">Start Date:</span> ${user.start}</div>
+      <div class="row"><span class="label">End Date:</span> ${user.end}</div>
+      <div class="row"><span class="label">Payment:</span> <span class="${user.paid ? 'paid' : 'notpaid'}">${user.paid ? 'PAID' : 'NOT PAID'}</span></div>
+      ${!user.paid ? '<button onclick="showQR()">Pay Now ₹20</button>' : ''}
+      <div class="qr" id="qr">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=97521577775@fam&pn=Interdisciplinary%20Project&am=20" />
+        <a class="upi-link" href="upi://pay?pa=97521577775@fam&pn=Interdisciplinary%20Project&am=20">Open UPI App</a>
+        <button onclick="paymentDone()" style="margin-top:10px;">Payment Done</button>
+      </div>
+    </div>`;
+}
+
+function showQR(){
+  document.getElementById('qr').style.display = 'block';
+}
+
+function paymentDone(){
+  document.body.innerHTML = `
+  <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#e8f5e9;font-family:Arial;">
+    <div style="background:white;padding:40px;border-radius:10px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.2);max-width:400px;">
+      <div style="font-size:70px;color:green;">✔</div>
+      <h2 style="color:#1f4d3a;">Payment Submitted</h2>
+      <p style="color:#333;font-size:15px;line-height:1.5;">
+        Please <b>screenshot this page</b> and send it on WhatsApp to<br>
+        <b>+91 9752157775</b><br><br>
+        Also attach your <b>UPI payment screenshot</b> for verification.
+      </p>
+      <p style="margin-top:15px;font-size:14px;color:#777;">Your payment will be updated after verification.</p>
+    </div>
+  </div>`;
+}
+</script>
+
+</body>
+</html>
